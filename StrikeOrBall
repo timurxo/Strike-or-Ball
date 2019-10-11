@@ -35,10 +35,11 @@ main:
 
 		# get answer and save it in $t3
 		li $v0, 5
+		syscall	
 		move $t3, $v0		# $t3 - user input for play/not play
-		syscall
+		
 
-		# next instruction 
+		#! next instruction 
 		lw $t9, play
 		beq $t3, $t9, Loop
 		#lw $t9, quit
@@ -194,93 +195,6 @@ strike_out:	# if number of strikes and balls match
 
 
 Exit: 
-		# exit the program
-		li $v0, 10		
-		syscall 
-		beq $t0, $t5, ball	
-		beq $t0, $t6, ball	
-				
-		# check second number
-		beq $t1, $t5, strike
-		beq $t1, $t4, ball	
-		beq $t1, $t6, ball
-
-		# check third number
-		beq $t2, $t6, strike 
-		beq $t2, $t4, ball	
-		beq $t2, $t5, ball
-
-		# if number of strikes = number of balls
-		beq $t7, $t8, strike_out
-		j Loop
-
-
-strike:		# if number and position match
-		la $a0, strike_string
-		li $v0, 4
-		addi $t7, 1	# count number of strikes
-		syscall
-		j Loop
-
-ball:		# if only number match
-		la $a0, ball_string
-		li $v0, 4
-		addi $t8, 1	# count number of strikes
-		syscall
-		j Loop
-
-strike_out:	# if number of strikes and balls match
-		la $a0, strike_out_string
-		li $v0, 4
-		syscall
-		j Loop
-
-
-
-Exit: 
-		# exit the program
-		li $v0, 10		
-		syscall
-		# check first computer's number
-		beq $t0, $t4, strike 
-		beq $t0, $t5, ball	
-		beq $t0, $t6, ball	
-				
-		# check second number
-		beq $t1, $t5, strike
-		beq $t1, $t4, ball	
-		beq $t1, $t6, ball
-
-		# check third number
-		beq $t2, $t6, strike 
-		beq $t2, $t4, ball	
-		beq $t2, $t5, ball
-
-		# if number of strikes = number of balls
-		beq $t7, $t8, strike_out
-		j Loop
-
-
-strike:		# if number and position match
-		la $a0, strike_string
-		li $v0, 4
-		addi $t7, 1	# count number of strikes
-		syscall
-
-ball:		# if only number match
-		la $a0, ball_string
-		li $v0, 4
-		addi $t8, 1	# count number of strikes
-		syscall
-
-strike_out:	# if number of strikes and balls match
-		la $a0, strike_out_string
-		li $v0, 4
-		syscall
-
-
-
-exit: 
 		# exit the program
 		li $v0, 10		
 		syscall
