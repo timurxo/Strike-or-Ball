@@ -1,33 +1,33 @@
 
 .data
 
-array: .word 1, 2, 3	# computer generates numbers
-.align 4
-user_input: .space 40	# for user input
+#array: .word 1, 2, 3	# computer generates numbers
+#.align 4
+#user_input: .space 40	# for user input
 ask_input: .asciiz "\Type 3 numbers:\n"
 strike_string: .asciiz "\+1 strike\n"
 ball_string: .asciiz "\+1 ball\n"
 strike_out_string: .asciiz "\Strike out!\n"
 
-wanna_play: .asciiz "\M E N U \n Play New Game (p) Quite (q) Choose? \n"
-play: .byte 'p'
-quit: .byte 'q'
+wanna_play: .asciiz "M E N U \n Play New Game (p) \n Quite (q) \n Choose? \n"
+play: .word 1
+quit: .word 2
 
 .text
 .globl main
 
 main:			
-		li $t0, 1
-		li $t1, 2
-		li $t2, 3
+		li $t0, 4
+		li $t1, 5
+		li $t2, 6
 
 		# ask if user wants to play
 		la $a0, wanna_play
 		li $v0, 4
 		syscall
 
-		# get answer
-		li $v0, 5
+		# get answer and save it in $t3
+		la $v0, 5
 		move $t3, $v0		# $t3 - user input for play/not play
 		syscall
 
@@ -38,28 +38,75 @@ main:
 		beq $t3, $t9, Exit
 
 Loop: 		
+	# USER
+
 		# ask user for an input
 		la $a0, ask_input
 		li $v0, 4
 		syscall
 
-  		# get the first input
+  		# get the first input -> $t4
 		li $v0, 5
 		move $t4, $v0
 		syscall
 
-		# get the secondinput
+		# get the second input -> $t5
 		li $v0, 5
 		move $t5, $v0
 		syscall
 		
-		# get the third input
+		# get the third input -> $t6
 		li $v0, 5
 		move $t6, $v0
 		syscall
 
-	
 
+		# check first computer's number
+		beq $t0, $t4, strike 
+		beq $t0, $t5, ball	
+		beq $t0, $t6, ball	
+				
+		# check second number
+		beq $t1, $t5, strike
+		beq $t1, $t4, ball	
+		beq $t1, $t6, ball
+
+		# check third number
+		beq $t2, $t6, strike 
+		beq $t2, $t4, ball	
+		beq $t2, $t5, ball
+
+		# if number of strikes = number of balls
+		beq $t7, $t8, strike_out
+		j Loop
+
+
+strike:		# if number and position match
+		la $a0, strike_string
+		li $v0, 4
+		addi $t7, 1	# count number of strikes
+		syscall
+		j Loop
+
+ball:		# if only number match
+		la $a0, ball_string
+		li $v0, 4
+		addi $t8, 1	# count number of strikes
+		syscall
+		j Loop
+
+strike_out:	# if number of strikes and balls match
+		la $a0, strike_out_string
+		li $v0, 4
+		syscall
+		j Loop
+
+
+
+Exit: 
+		# exit the program
+		li $v0, 10		
+		syscall
 		# check first computer's number
 		beq $t0, $t4, strike 
 		beq $t0, $t5, ball	
