@@ -4,10 +4,12 @@
 #array: .word 1, 2, 3	# computer generates numbers
 #.align 4
 #user_input: .space 40	# for user input
-ask_input: .asciiz "\Type 3 numbers:\n"
+ask_input: .asciiz "\nType 3 numbers:\n"
 strike_string: .asciiz "\+1 strike\n"
 ball_string: .asciiz "\+1 ball\n"
-strike_out_string: .asciiz "\Strike out!\n"
+strike_out_string: .asciiz "\nStrike out!\n"
+between: .asciiz " - strikes  \nballs - "
+check: .asciiz " check "
 
 wanna_play: .asciiz "M E N U \n Play New Game (p) \n Quite (q) \n Choose? \n"
 play: .word 1
@@ -21,21 +23,26 @@ main:
 		li $t1, 5
 		li $t2, 6
 
+		li $t7, 0
+		li $t8, 0
+
+
+
 		# ask if user wants to play
 		la $a0, wanna_play
 		li $v0, 4
 		syscall
 
 		# get answer and save it in $t3
-		la $v0, 5
+		li $v0, 5
 		move $t3, $v0		# $t3 - user input for play/not play
 		syscall
 
 		# next instruction 
-		lw $t8, play
-		beq $t3, $t8, Loop
-		lw $t9, quit
-		beq $t3, $t9, Exit
+		lw $t9, play
+		beq $t3, $t9, Loop
+		#lw $t9, quit
+		#beq $t3, $t9, Exit
 
 Loop: 		
 	# USER
@@ -47,22 +54,149 @@ Loop:
 
   		# get the first input -> $t4
 		li $v0, 5
-		move $t4, $v0
 		syscall
+		move $t4, $v0
+		#print what user input here
+				
 
 		# get the second input -> $t5
 		li $v0, 5
-		move $t5, $v0
 		syscall
+		move $t5, $v0
+				
 		
 		# get the third input -> $t6
 		li $v0, 5
+		syscall
 		move $t6, $v0
+
+		
+
+# CHECK FIRST NUMBER
+
+		beq $t0, $t4, L1
+		j CHK2
+
+	L1:	la $a0, strike_string
+		li $v0, 4
+		addi $t7, 1	# count number of strikes
+		addi $t8, 1
+		syscall
+		
+	CHK2:
+		beq $t0, $t5, L2
+		j CHK3
+
+	L2:	la $a0, ball_string
+		li $v0, 4
+		addi $t8, 1	# count number of balls
+		syscall
+	
+	CHK3:
+		beq $t0, $t6, L3
+		j CHK4
+
+	L3:	la $a0, ball_string
+		li $v0, 4
+		addi $t8, 1	# count number of balls
+		syscall	
+				
+
+
+
+# CHECK SECONDS NUMBER
+	
+	CHK4:
+		beq $t1, $t5, L4
+		j CHK5
+	L4:	la $a0, strike_string
+		li $v0, 4
+		addi $t7, 1	# count number of strikes
+		addi $t8, 1
+		syscall	
+
+	CHK5:
+		beq $t1, $t4, L5
+		j CHK6
+	L5:	la $a0, ball_string
+		li $v0, 4
+		addi $t8, 1	# count number of balls
+		syscall
+	
+	CHK6:
+		beq $t1, $t6, L6
+		j CHK7
+	L6:	la $a0, ball_string
+		li $v0, 4
+		addi $t8, 1	# count number of balls
+		syscall	
+
+
+
+
+# CHECK THIRD NUMBER
+
+	CHK7:
+		beq $t2, $t6, L7
+		j CHK8
+	L7:	la $a0, strike_string
+		li $v0, 4
+		addi $t7, 1	# count number of strikes
+		addi $t8, 1
+		syscall	
+	
+	CHK8:
+		beq $t2, $t4, L8
+		j CHK9
+	L8:	la $a0, ball_string
+		li $v0, 4
+		addi $t8, 1	# count number of balls
 		syscall
 
+	CHK9:
+		beq $t2, $t5, L9
+		j CHK10
+	L9:	la $a0, ball_string
+		li $v0, 4
+		addi $t8, 1	# count number of balls
+		syscall	
 
-		# check first computer's number
-		beq $t0, $t4, strike 
+
+
+	# PRINT
+	CHK10:	# print number of strikes
+		li $v0, 1
+		move $a0, $t7
+		syscall
+
+		la $a0, between
+		li $v0, 4
+		syscall
+
+		# print number of balls
+		li $v0, 1
+		move $a0, $t8
+		syscall
+
+	# STRIKE OUT CONDITION - if num of strikes = 3
+
+		# if number of strikes = number of balls
+		bne $t7, 3, Loop
+		j strike_out
+
+
+strike_out:	# if number of strikes and balls match
+		la $a0, strike_out_string
+		li $v0, 4
+		syscall
+		j main
+
+
+
+Exit: 
+		# exit the program
+		li $v0, 10		
+		syscall 
 		beq $t0, $t5, ball	
 		beq $t0, $t6, ball	
 				
